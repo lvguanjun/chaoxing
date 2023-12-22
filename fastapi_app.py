@@ -144,7 +144,6 @@ async def start_study(task: StudyTask):
         raise HTTPException(status_code=400, detail="已经有相同账号密码的任务正在运行")
 
     account = Account(task.username, task.password)
-    print(account.username, account.password)
     # 实例化超星API
     chaoxing = Chaoxing(account=account)
 
