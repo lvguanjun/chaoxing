@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>超星学习自动化</title>
+    <style>
+        body {
+            font-family: "Microsoft YaHei", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f7f7f7;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        select {
+            width: calc(100% - 20px);
+            /* 计算宽度，减去内边距 */
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            /* 确保内边距和边框包含在宽度内 */
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 10px 0;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: auto;
+            /* 使按钮的宽度根据内容自动调整 */
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .description {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .description a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .description a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>超星学习自动化</h1>
+        <form id="start-form">
+            <h2>开始学习任务</h2>
+            <input type="text" id="username" placeholder="用户名（手机号）" required>
+            <input type="password" id="password" placeholder="密码" required>
+            <input type="text" id="course_list" placeholder="课程ID列表（使用逗号分隔）" required>
+            <select id="speed">
+                <option value="1">1倍速</option>
+                <option value="2">2倍速</option>
+            </select>
+            <button type="submit">开始学习任务</button>
+            <div class="description">
+                课程 ID 详细说明请参阅<a href="/static/html/course_id.html" target="_blank">如何获取课程 ID</a>。
+            </div>
+        </form>
+        <form id="cancel-form" onsubmit="cancelTask(event)">
+            <h2>取消学习任务</h2>
+            <input type="text" id="cancel-username" placeholder="用户名（手机号）" required>
+            <input type="password" id="cancel-password" placeholder="密码" required>
+            <button type="submit">取消学习任务</button>
+        </form>
+    </div>
+    <script>
+        const startForm = document.getElementById('start-form');
+        const cancelForm = document.getElementById('cancel-form');
+
+        startForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const courseList = document.getElementById('course_list').value.split(',');
+            const speed = parseInt(document.getElementById('speed').value);
+
+            const response = await fetch('/start-study', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username,
+                    password,
+                    course_list: courseList,
+                    speed,
+                }),
+            });
+
+            const data = await response.json();
+
+            alert(data.detail || '启动学习任务时出现错误。');
+        };
+
+        async function cancelTask(event) {
+            event.preventDefault();
+            const username = document.getElementById('cancel-username').value;
+            const password = document.getElementById('cancel-password').value;
+
+            const response = await fetch('/cancel-study', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username,
+                    password,
+                }),
+            });
+
+            const data = await response.json();
+
+            alert(data.detail || '取消学习任务时出现错误。');
+        }
+    </script>
+</body>
+
+</html>

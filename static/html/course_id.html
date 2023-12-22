@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>如何获取课程 ID</title>
+    <style>
+        body {
+            font-family: "Microsoft YaHei", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f7f7f7;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1,
+        h2 {
+            color: #333;
+        }
+
+        p,
+        ol {
+            line-height: 1.6;
+            color: #666;
+        }
+
+        ol li {
+            margin-bottom: 15px;
+            /* 增加列表项之间的间距 */
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        code {
+            background-color: #f1f1f1;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>如何获取课程 ID</h1>
+        <h2>步骤说明</h2>
+        <ol>
+            <li>进入学习通 <a href="https://i.mooc.chaoxing.com/space/index" target="_blank">个人首页</a>
+                ，如未登录会自动跳转到登录页面，参考如下图。<br><img src="/static/png/index.png" alt="首页"></li>
+            <li>选种想要查看的课程，进入课程页面。</li>
+            <li>从 url 中复制粘贴课程 ID，如下图。<br><img src="/static/png/stu.png" alt="课程 ID"></li>
+            <li>课程 ID 列表填写用 <code>,</code> 作为分隔符，中间不要有空格，例如：<br><code>321833212,321833213,321833214</code></li>
+        </ol>
+    </div>
+</body>
+
+</html>

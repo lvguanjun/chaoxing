@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import asyncio
 import random
 import re
 import time
@@ -187,6 +188,37 @@ class Chaoxing:
                     _isFinished = True
                 # 播放进度条
                 show_progress(_job["name"], _playingTime, _wait_time, _duration, _speed)
+                _playingTime += _wait_time
+            logger.info(f"\n任务完成:{_job['name']}")
+
+    async def async_study_video(self, _course, _job, _job_info, _speed: float = 1):
+        _session = init_session(isVideo=True)
+        _session.headers.update()
+        _info_url = f"https://mooc1.chaoxing.com/ananas/status/{_job['objectid']}?k={self.get_fid()}&flag=normal"
+        _video_info = _session.get(_info_url).json()
+        if _video_info["status"] == "success":
+            _dtoken = _video_info["dtoken"]
+            _duration = _video_info["duration"]
+            _crc = _video_info["crc"]
+            _key = _video_info["key"]
+            _isPassed = False
+            _isFinished = False
+            _playingTime = 0
+            logger.info(f"开始任务:{_job['name']}, 总时长: {_duration}秒")
+            while not _isPassed:
+                if _isFinished:
+                    _playingTime = _duration
+                _isPassed = self.video_progress_log(
+                    _session, _course, _job, _job_info, _dtoken, _duration, _playingTime
+                )
+                if _isPassed:
+                    break
+                _wait_time = get_random_seconds()
+                if _playingTime + _wait_time >= int(_duration):
+                    _wait_time = int(_duration) - _playingTime
+                    _isFinished = True
+                logger.trace(f"等待{_wait_time}秒, 当前进度: {_playingTime}/{_duration}")
+                await asyncio.sleep(_wait_time)
                 _playingTime += _wait_time
             logger.info(f"\n任务完成:{_job['name']}")
 
