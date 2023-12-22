@@ -217,8 +217,9 @@ class Chaoxing:
                 if _playingTime + _wait_time >= int(_duration):
                     _wait_time = int(_duration) - _playingTime
                     _isFinished = True
-                logger.trace(f"等待{_wait_time}秒, 当前进度: {_playingTime}/{_duration}")
-                await asyncio.sleep(_wait_time)
+                cur_wait_time = round(_wait_time / _speed, 3)
+                logger.trace(f"等待{cur_wait_time}秒, 当前进度: {_playingTime}/{_duration}")
+                await asyncio.sleep(cur_wait_time)
                 _playingTime += _wait_time
             logger.info(f"\n任务完成:{_job['name']}")
 
