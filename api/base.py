@@ -29,13 +29,13 @@ def get_random_seconds():
     return random.randint(30, 90)
 
 
-def init_session(isVideo: bool = False):
+def init_session(username, isVideo: bool = False):
     _session = requests.session()
     if isVideo:
         _session.headers = gc.VIDEO_HEADERS
     else:
         _session.headers = gc.HEADERS
-    _session.cookies.update(use_cookies())
+    _session.cookies.update(use_cookies(username))
     return _session
 
 
@@ -72,22 +72,22 @@ class Chaoxing:
         logger.trace("正在尝试登录...")
         resp = _session.post(_url, headers=gc.HEADERS, data=_data)
         if resp and resp.json()["status"] == True:
-            save_cookies(_session)
+            save_cookies(self.account.username, _session)
             logger.info("登录成功...")
             return {"status": True, "msg": "登录成功"}
         else:
             return {"status": False, "msg": str(resp.json()["msg2"])}
 
     def get_fid(self):
-        _session = init_session()
+        _session = init_session(self.account.username)
         return _session.cookies.get("fid")
 
     def get_uid(self):
-        _session = init_session()
+        _session = init_session(self.account.username)
         return _session.cookies.get("_uid")
 
     def get_course_list(self):
-        _session = init_session()
+        _session = init_session(self.account.username)
         _url = "https://mooc2-ans.chaoxing.com/mooc2-ans/visit/courselistdata"
         _data = {"courseType": 1, "courseFolderId": 0, "query": "", "superstarClass": 0}
         logger.trace("正在读取所有的课程列表...")
@@ -111,7 +111,7 @@ class Chaoxing:
         return course_list
 
     def get_course_point(self, _courseid, _clazzid, _cpi):
-        _session = init_session()
+        _session = init_session(self.account.username)
         _url = f"https://mooc2-ans.chaoxing.com/mooc2-ans/mycourse/studentcourse?courseid={_courseid}&clazzid={_clazzid}&cpi={_cpi}&ut=s"
         logger.trace("开始读取课程所有章节...")
         _resp = _session.get(_url)
@@ -120,7 +120,7 @@ class Chaoxing:
         return decode_course_point(_resp.text)
 
     def get_job_list(self, _clazzid, _courseid, _cpi, _knowledgeid):
-        _session = init_session()
+        _session = init_session(self.account.username)
         _url = f"https://mooc1.chaoxing.com/mooc-ans/knowledge/cards?clazzid={_clazzid}&courseid={_courseid}&knowledgeid={_knowledgeid}&num=0&ut=s&cpi={_cpi}&v=20160407-3&mooc2=1"
         logger.trace("开始读取章节所有任务点...")
         _resp = _session.get(_url)
@@ -161,7 +161,7 @@ class Chaoxing:
         return resp.json()["isPassed"]
 
     def study_video(self, _course, _job, _job_info, _speed: float = 1):
-        _session = init_session(isVideo=True)
+        _session = init_session(self.account.username, isVideo=True)
         _session.headers.update()
         _info_url = f"https://mooc1.chaoxing.com/ananas/status/{_job['objectid']}?k={self.get_fid()}&flag=normal"
         _video_info = _session.get(_info_url).json()
@@ -192,7 +192,7 @@ class Chaoxing:
             logger.info(f"\n任务完成:{_job['name']}")
 
     async def async_study_video(self, _course, _job, _job_info, _speed: float = 1):
-        _session = init_session(isVideo=True)
+        _session = init_session(self.account.username, isVideo=True)
         _session.headers.update()
         _info_url = f"https://mooc1.chaoxing.com/ananas/status/{_job['objectid']}?k={self.get_fid()}&flag=normal"
         _video_info = _session.get(_info_url).json()
@@ -224,6 +224,6 @@ class Chaoxing:
             logger.info(f"\n任务完成:{_job['name']}")
 
     def study_document(self, _course, _job):
-        _session = init_session()
+        _session = init_session(self.account.username)
         _url = f"https://mooc1.chaoxing.com/ananas/job/document?jobid={_job['jobid']}&knowledgeid={re.findall('nodeId_(.*?)-', _job['otherinfo'])[0]}&courseid={_course['courseId']}&clazzid={_course['clazzId']}&jtoken={_job['jtoken']}&_dc={get_timestamp()}"
         _resp = _session.get(_url)

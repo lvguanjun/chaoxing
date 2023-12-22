@@ -175,6 +175,14 @@ async def cancel_study(task: AccountModel):
     return {"detail": "后台任务已取消"}
 
 
+@app.get("/study-tasks")
+async def get_study_tasks():
+    return {
+        "tasks": list(background_tasks.keys()),
+        "count": len(background_tasks),
+    }
+
+
 if __name__ == "__main__":
     import uvicorn
 
