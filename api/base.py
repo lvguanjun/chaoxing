@@ -1,20 +1,23 @@
 # -*- coding: utf-8 -*-
-import re
-import requests
-import time
 import random
+import re
+import time
 from hashlib import md5
+
+import requests
 
 from api import formatted_output
 from api.cipher import AESCipher
-from api.logger import logger
-from api.cookies import save_cookies, use_cookies
-from api.process import show_progress
 from api.config import GlobalConst as gc
-from api.decode import (decode_course_list,
-                        decode_course_point,
-                        decode_course_card,
-                        decode_course_folder)
+from api.cookies import save_cookies, use_cookies
+from api.decode import (
+    decode_course_card,
+    decode_course_folder,
+    decode_course_list,
+    decode_course_point,
+)
+from api.logger import logger
+from api.process import show_progress
 
 
 def get_timestamp():
@@ -40,6 +43,7 @@ class Account:
     password = None
     last_login = None
     isSuccess = None
+
     def __init__(self, _username, _password):
         self.username = _username
         self.password = _password
@@ -53,16 +57,17 @@ class Chaoxing:
     def login(self):
         _session = requests.session()
         _url = "https://passport2.chaoxing.com/fanyalogin"
-        _data = {"fid": "-1",
-                    "uname": self.cipher.encrypt(self.account.username),
-                    "password": self.cipher.encrypt(self.account.password),
-                    "refer": "https%3A%2F%2Fi.chaoxing.com",
-                    "t": True,
-                    "forbidotherlogin": 0,
-                    "validate": "",
-                    "doubleFactorLogin": 0,
-                    "independentId": 0
-                }
+        _data = {
+            "fid": "-1",
+            "uname": self.cipher.encrypt(self.account.username),
+            "password": self.cipher.encrypt(self.account.password),
+            "refer": "https%3A%2F%2Fi.chaoxing.com",
+            "t": True,
+            "forbidotherlogin": 0,
+            "validate": "",
+            "doubleFactorLogin": 0,
+            "independentId": 0,
+        }
         logger.trace("正在尝试登录...")
         resp = _session.post(_url, headers=gc.HEADERS, data=_data)
         if resp and resp.json()["status"] == True:
@@ -83,12 +88,7 @@ class Chaoxing:
     def get_course_list(self):
         _session = init_session()
         _url = "https://mooc2-ans.chaoxing.com/mooc2-ans/visit/courselistdata"
-        _data = {
-            "courseType": 1,
-            "courseFolderId": 0,
-            "query": "",
-            "superstarClass": 0
-        }
+        _data = {"courseType": 1, "courseFolderId": 0, "query": "", "superstarClass": 0}
         logger.trace("正在读取所有的课程列表...")
         _resp = _session.post(_url, data=_data)
         # logger.trace(f"原始课程列表内容:\n{_resp.text}")
@@ -103,7 +103,7 @@ class Chaoxing:
                 "courseType": 1,
                 "courseFolderId": folder["id"],
                 "query": "",
-                "superstarClass": 0
+                "superstarClass": 0,
             }
             _resp = _session.post(_url, data=_data)
             course_list += decode_course_list(_resp.text)
@@ -130,28 +130,32 @@ class Chaoxing:
 
     def get_enc(self, clazzId, jobid, objectId, playingTime, duration, userid):
         return md5(
-            f"[{clazzId}][{userid}][{jobid}][{objectId}][{playingTime * 1000}][d_yHJ!$pdA~5][{duration * 1000}][0_{duration}]"
-            .encode()).hexdigest()
+            f"[{clazzId}][{userid}][{jobid}][{objectId}][{playingTime * 1000}][d_yHJ!$pdA~5][{duration * 1000}][0_{duration}]".encode()
+        ).hexdigest()
 
-    def video_progress_log(self, _session, _course, _job, _job_info, _dtoken, _duration, _playingTime):
-        _url = (f"https://mooc1.chaoxing.com/mooc-ans/multimedia/log/a/"
-                f"{_course['cpi']}/"
-                f"{_dtoken}?"
-                f"clazzId={_course['clazzId']}&"
-                f"playingTime={_playingTime}&"
-                f"duration={_duration}&"
-                f"clipTime=0_{_duration}&"
-                f"objectId={_job['objectid']}&"
-                f"otherInfo={_job['otherinfo']}&"
-                f"courseId={_course['courseId']}&"
-                f"jobid={_job['jobid']}&"
-                f"userid={self.get_uid()}&"
-                f"isdrag=3&"
-                f"view=pc&"
-                f"enc={self.get_enc(_course['clazzId'], _job['jobid'], _job['objectid'], _playingTime, _duration, self.get_uid())}&"
-                f"rt=0.9&"
-                f"dtype=Video&"
-                f"_t={get_timestamp()}")
+    def video_progress_log(
+        self, _session, _course, _job, _job_info, _dtoken, _duration, _playingTime
+    ):
+        _url = (
+            f"https://mooc1.chaoxing.com/mooc-ans/multimedia/log/a/"
+            f"{_course['cpi']}/"
+            f"{_dtoken}?"
+            f"clazzId={_course['clazzId']}&"
+            f"playingTime={_playingTime}&"
+            f"duration={_duration}&"
+            f"clipTime=0_{_duration}&"
+            f"objectId={_job['objectid']}&"
+            f"otherInfo={_job['otherinfo']}&"
+            f"courseId={_course['courseId']}&"
+            f"jobid={_job['jobid']}&"
+            f"userid={self.get_uid()}&"
+            f"isdrag=3&"
+            f"view=pc&"
+            f"enc={self.get_enc(_course['clazzId'], _job['jobid'], _job['objectid'], _playingTime, _duration, self.get_uid())}&"
+            f"rt=0.9&"
+            f"dtype=Video&"
+            f"_t={get_timestamp()}"
+        )
         resp = _session.get(_url)
         return resp.json()["isPassed"]
 
@@ -172,7 +176,9 @@ class Chaoxing:
             while not _isPassed:
                 if _isFinished:
                     _playingTime = _duration
-                _isPassed = self.video_progress_log(_session, _course, _job, _job_info, _dtoken, _duration, _playingTime)
+                _isPassed = self.video_progress_log(
+                    _session, _course, _job, _job_info, _dtoken, _duration, _playingTime
+                )
                 if _isPassed:
                     break
                 _wait_time = get_random_seconds()
@@ -180,7 +186,7 @@ class Chaoxing:
                     _wait_time = int(_duration) - _playingTime
                     _isFinished = True
                 # 播放进度条
-                show_progress(_job['name'], _playingTime, _wait_time, _duration, _speed)
+                show_progress(_job["name"], _playingTime, _wait_time, _duration, _speed)
                 _playingTime += _wait_time
             logger.info(f"\n任务完成:{_job['name']}")
 

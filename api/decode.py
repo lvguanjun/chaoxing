@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 import json
-from bs4 import BeautifulSoup
 import re
+
+from bs4 import BeautifulSoup
+
 from api.logger import logger
 
 
@@ -16,14 +18,23 @@ def decode_course_list(_text):
             _course_detail["id"] = course.attrs["id"]
             _course_detail["info"] = course.attrs["info"]
             _course_detail["roleid"] = course.attrs["roleid"]
-            _course_detail["clazzId"] = course.select_one("input.clazzId").attrs["value"]
-            _course_detail["courseId"] = course.select_one("input.courseId").attrs["value"]
-            _course_detail["cpi"] = re.findall("cpi=(.*?)&", course.select_one("a").attrs["href"])[0]
-            _course_detail["title"] = course.select_one("span.course-name").attrs["title"]
+            _course_detail["clazzId"] = course.select_one("input.clazzId").attrs[
+                "value"
+            ]
+            _course_detail["courseId"] = course.select_one("input.courseId").attrs[
+                "value"
+            ]
+            _course_detail["cpi"] = re.findall(
+                "cpi=(.*?)&", course.select_one("a").attrs["href"]
+            )[0]
+            _course_detail["title"] = course.select_one("span.course-name").attrs[
+                "title"
+            ]
             _course_detail["desc"] = course.select_one("p.margint10").attrs["title"]
             _course_detail["teacher"] = course.select_one("p.color3").attrs["title"]
             _course_list.append(_course_detail)
     return _course_list
+
 
 def decode_course_folder(_text):
     logger.trace("开始解码二级课程列表...")
@@ -34,9 +45,12 @@ def decode_course_folder(_text):
         if course.attrs["fileid"]:
             _course_folder_detail = {}
             _course_folder_detail["id"] = course.attrs["fileid"]
-            _course_folder_detail["rename"] = course.select_one("input.rename-input").attrs["value"]
+            _course_folder_detail["rename"] = course.select_one(
+                "input.rename-input"
+            ).attrs["value"]
             _course_folder_list.append(_course_folder_detail)
     return _course_folder_list
+
 
 def decode_course_point(_text):
     logger.trace("开始解码章节列表...")
@@ -49,10 +63,16 @@ def decode_course_point(_text):
             continue
         _point_detail = {}
         _point_detail["id"] = re.findall("^cur(\d{1,20})$", _point.attrs["id"])[0]
-        _point_detail["title"] = str(_point.select_one("span.catalog_sbar").text) + " " + str(_point.attrs["title"])
+        _point_detail["title"] = (
+            str(_point.select_one("span.catalog_sbar").text)
+            + " "
+            + str(_point.attrs["title"])
+        )
         _point_detail["jobCount"] = 0
         if _point.select_one("input.knowledgeJobCount"):
-            _point_detail["jobCount"] = _point.select_one("input.knowledgeJobCount").attrs["value"]
+            _point_detail["jobCount"] = _point.select_one(
+                "input.knowledgeJobCount"
+            ).attrs["value"]
         _point_list.append(_point_detail)
     _course_point["points"] = _point_list
     return _course_point
@@ -72,7 +92,7 @@ def decode_course_card(_text: str):
         _job_info = {}
         _job_info["ktoken"] = _cards["defaults"]["ktoken"]
         _job_info["mtEnc"] = _cards["defaults"]["mtEnc"]
-        _job_info["reportTimeInterval"] = _cards["defaults"]["reportTimeInterval"]   # 60
+        _job_info["reportTimeInterval"] = _cards["defaults"]["reportTimeInterval"]  # 60
         _job_info["defenc"] = _cards["defaults"]["defenc"]
         _job_info["cardid"] = _cards["defaults"]["cardid"]
         _job_info["cpi"] = _cards["defaults"]["cpi"]
