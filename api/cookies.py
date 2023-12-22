@@ -14,3 +14,7 @@ def save_cookies(username, _session):
 def use_cookies(username):
     cookies = cookies_map.get(username)
     return cookies
+
+
+def del_cookies(username):
+    cookies_map.pop(username, None)

@@ -98,6 +98,12 @@
                 </strong>
             </div>
         </form>
+        <form id="study-task-form">
+            <h2>查看学习任务</h2>
+            <input type="text" id="study-username" placeholder="用户名（手机号）" required>
+            <input type="password" id="study-password" placeholder="密码" required>
+            <button type="submit">查看学习任务</button>
+        </form>
         <form id="cancel-form" onsubmit="cancelTask(event)">
             <h2>取消学习任务</h2>
             <input type="text" id="cancel-username" placeholder="用户名（手机号）" required>
@@ -154,6 +160,29 @@
 
             alert(data.detail || '取消学习任务时出现错误。');
         }
+
+        const studyTaskForm = document.getElementById('study-task-form');
+
+        studyTaskForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('study-username').value;
+            const password = document.getElementById('study-password').value;
+
+            const response = await fetch('/study-task', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username,
+                    password,
+                }),
+            });
+
+            const data = await response.json();
+
+            alert(data.detail || '查看学习任务时出现错误。');
+        };
     </script>
 </body>
 

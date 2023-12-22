@@ -17,6 +17,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, field_validator
 
 from api.base import Account, Chaoxing
+from api.cookies import del_cookies
 from api.logger import logger
 
 app = FastAPI()
@@ -96,6 +97,7 @@ async def async_study(chaoxing: Chaoxing, course_task: list, speed: int):
             generate_task_key(chaoxing.account.username, chaoxing.account.password),
             None,
         )
+        del_cookies(chaoxing.account.username)
 
 
 # 根据账号和密码生成任务标识符
@@ -173,6 +175,17 @@ async def cancel_study(task: AccountModel):
     logger.info(f"取消任务成功: {task_key}")
 
     return {"detail": "后台任务已取消"}
+
+
+@app.post("/study-task")
+async def get_study_task(task: AccountModel):
+    task_key = generate_task_key(task.username, task.password)
+    task_instance = background_tasks.get(task_key)
+
+    if not task_instance:
+        raise HTTPException(status_code=400, detail="没有找到对应的任务")
+
+    return {"detail": "后台任务正在运行"}
 
 
 @app.get("/study-tasks")
